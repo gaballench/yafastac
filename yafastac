@@ -4,11 +4,24 @@
 # YAFASTAC: yet another fasta concatenator
 # Gustavo A. Ballen
 # 2025-03-18
-# usage: yafastac input_path output_path
+# usage: yafastac input_path output_path threshold remove_files verbose
 ####
 
 UCE_PATH=$1
 OUTPUT_PATH=$2
+THRESHOLD=$3
+REMOVE_FILES=$4
+VERBOSE=$5
+
+if test $VERBOSE -eq 1; then
+    echo "Arguments are as follows:"
+    echo UCE_PATH=$UCE_PATH
+    echo OUTPUT_PATH=$OUTPUT_PATH
+    echo THRESHOLD=$THRESHOLD
+    echo REMOVE_FILES=$REMOVE_FILES
+    echo VERBOSE=$VERBOSE
+fi
+
 mkdir $OUTPUT_PATH
 
 UNIQUE_UCES=($(ls $UCE_PATH/uce-search-results*/taxon-sets*/all/exploded-fastas2/uce-*\
@@ -20,17 +33,62 @@ for i in ${UNIQUE_UCES[@]}; do
     FASTA_PATHS=($(ls $UCE_PATH/uce-search-results*/taxon-sets*/all/exploded-fastas2/$i))
     NFILES=${#FASTA_PATHS[@]}
     NFILES_IDX=$((NFILES-1))
-    echo "There are $NFILES instances of $i"
+    if test $VERBOSE -eq 1; then
+	echo "There are $NFILES instances of $i"
+    fi
     if test $NFILES -eq 1; then
-	echo "Copying singleton to results"
+	if test $VERBOSE -eq 1; then	    
+	    echo "Copying singleton to results"
+	fi
 	cp ${FASTA_PATHS[0]} $OUTPUT_PATH/
     fi
     if test $NFILES -gt 1; then
-	echo "Copying multiple instances to results"
+	if test $VERBOSE -eq 1; then
+	    echo "Copying multiple instances to results"
+	fi	
 	cp ${FASTA_PATHS[0]} $OUTPUT_PATH/
 	for j in `seq 1 $NFILES_IDX`; do
-	    echo "Sending seq $j of $i to concatenated file"
+	    if test $VERBOSE -eq 1; then
+		echo "Sending sequence $j (numbered from 0) of $i to concatenated file"
+	    fi
 	    cat ${FASTA_PATHS[$j]} >> $OUTPUT_PATH/$i
 	done
     fi
 done
+
+# block if threshold is present and test whether to remove or not
+ALLTAXA=($(grep '>' $OUTPUT_PATH/*.fasta \
+	       | cut -d ':' -f 2 \
+	       | sed -e 's/>uce-[0-9]*_//g' \
+	       | sed -e 's/ |uce-[0-9]*//g' \
+	       | sort \
+	       | uniq))
+
+echo "${ALLTAXA[@]}"
+
+NTAXA=${#ALLTAXA[@]}
+
+echo $NTAXA
+
+for i in `ls $OUTPUT_PATH/*.fasta`; do
+    NTAXA_IN_UCE=($(grep -c '>' $i))
+    if test $VERBOSE -eq 1; then
+	echo "NTAXA = $NTAXA and NTAXA_IN_UCE = $NTAXA_IN_UCE for $i"
+    fi
+    PROPORTION=($(awk -v NTAXA_IN_UCE=$NTAXA_IN_UCE -v NTAXA=$NTAXA 'BEGIN { print ( NTAXA_IN_UCE / NTAXA ) }'))
+    if test $VERBOSE -eq 1; then	
+	echo "Proportion is $PROPORTION"
+    fi
+    REMOVE=$(awk -v PROPORTION=$PROPORTION -v THRESHOLD=$THRESHOLD 'BEGIN { print (PROPORTION < THRESHOLD)?1:0 }')
+    if test $VERBOSE -eq 1; then
+	echo $REMOVE
+    fi
+    if test $REMOVE -eq 1; then
+	mv $i $i".REMOVE";
+    fi
+done
+
+# if remove files, do it, else just leave them marked
+if test $REMOVE_FILES -eq 1; then
+    rm $OUTPUT_PATH/*.REMOVE
+fi
