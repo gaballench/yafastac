@@ -1,0 +1,36 @@
+#!/usr/bin/bash
+
+####
+# YAFASTAC: yet another fasta concatenator
+# Gustavo A. Ballen
+# 2025-03-18
+# usage: yafastac input_path output_path
+####
+
+UCE_PATH=$1
+OUTPUT_PATH=$2
+mkdir $OUTPUT_PATH
+
+UNIQUE_UCES=($(ls $UCE_PATH/uce-search-results*/taxon-sets*/all/exploded-fastas2/uce-*\
+    | xargs -n1 basename \
+    | sort  \
+    | uniq))
+
+for i in ${UNIQUE_UCES[@]}; do
+    FASTA_PATHS=($(ls $UCE_PATH/uce-search-results*/taxon-sets*/all/exploded-fastas2/$i))
+    NFILES=${#FASTA_PATHS[@]}
+    NFILES_IDX=$((NFILES-1))
+    echo "There are $NFILES instances of $i"
+    if test $NFILES -eq 1; then
+	echo "Copying singleton to results"
+	cp ${FASTA_PATHS[0]} $OUTPUT_PATH/
+    fi
+    if test $NFILES -gt 1; then
+	echo "Copying multiple instances to results"
+	cp ${FASTA_PATHS[0]} $OUTPUT_PATH/
+	for j in `seq 1 $NFILES_IDX`; do
+	    echo "Sending seq $j of $i to concatenated file"
+	    cat ${FASTA_PATHS[$j]} >> $OUTPUT_PATH/$i
+	done
+    fi
+done
