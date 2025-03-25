@@ -96,9 +96,9 @@ fi
 # then iterate over all files and remove the uce-N tags so that sequence names are as in the original samples
 # at the beginning
 for i in `ls $OUTPUT_PATH/*.fasta`; do 
-    sed -ie 's/>uce-[0-9]*_//g' $i;
+    sed -ie 's/^>uce-[0-9]*_//g' $i;
 done
 # at the end
 for i in `ls $OUTPUT_PATH/*.fasta`; do 
-    sed -ie 's/ |uce-[0-9]*//g' $i; 
+    sed -ie 's/ |uce-[0-9]*$//g' $i; 
 done
