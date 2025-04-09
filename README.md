@@ -13,7 +13,7 @@ git clone https://github.com/gaballench/yafastac
 
 then add it to the path (e.g., modify your `PATH` variable in `.bashrc` or elsewhere, google it or ask when in doubt), and make it executable if it is not yet:                                                                               
 ```
-cd yafasta; chmod +x yafasta                                                                                                                  
+cd yafastac; chmod +x yafasta                                                                                                                  
 ```
 
 # Usage
