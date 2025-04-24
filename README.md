@@ -25,7 +25,7 @@ yafastac input_path output_path threshold remove_files verbose
 ```
 
 
-Arguments `input_path` and `output_path` are paths where the exploded uce FASTA files from phyluce are located, often in multiple directories, and where we want to store the concatenated UCE fasta files.
+Arguments `input_path` and `output_path` are paths where the exploded uce FASTA files from phyluce are located, often in multiple directories, and where we want to store the concatenated UCE fasta files. The subdirectories in `input_path` no longer need the nested structure from phyluce, now, it suffices with having the multiple uce fasta files from multiple sources in each subdirectory.
 
 Argument `threshold` sets the minimum number of taxa that a given UCE should have with respect to the whole taxon sampling to be incuded in the final dataset. It is a float number e.g. 0.7 for generating a dataset where UCEs are included only if they have 70% or more of the complete taxon sampling.
 

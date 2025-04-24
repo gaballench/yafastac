@@ -24,13 +24,13 @@ fi
 
 mkdir $OUTPUT_PATH
 
-UNIQUE_UCES=($(ls $UCE_PATH/uce-search-results*/taxon-sets*/all/exploded-fastas2/uce-*\
+UNIQUE_UCES=($(ls $UCE_PATH/*/uce-*\
     | xargs -n1 basename \
     | sort  \
     | uniq))
 
 for i in ${UNIQUE_UCES[@]}; do
-    FASTA_PATHS=($(ls $UCE_PATH/uce-search-results*/taxon-sets*/all/exploded-fastas2/$i))
+    FASTA_PATHS=($(ls $UCE_PATH/*/$i))
     NFILES=${#FASTA_PATHS[@]}
     NFILES_IDX=$((NFILES-1))
     if test $VERBOSE -eq 1; then
