@@ -24,7 +24,7 @@ fi
 
 mkdir $OUTPUT_PATH
 
-UNIQUE_UCES=($(ls $UCE_PATH/*/uce-*\
+UNIQUE_UCES=($(find -type f -name $UCE_PATH/*/uce-*\
     | xargs -n1 basename \
     | sort  \
     | uniq))
