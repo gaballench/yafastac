@@ -24,10 +24,17 @@ fi
 
 mkdir $OUTPUT_PATH
 
-UNIQUE_UCES=($(ls $UCE_PATH/*/uce-*\
-    | xargs -n1 basename \
-    | sort  \
-    | uniq))
+# UNIQUE_UCES breaks the max arg list in ls: Argument list too long  
+# try now touching an empty file, then piping ls for each dir into it
+# and then sorting and calinq uniq on that text file.
+touch _ucefilenames.txt
+for i in $(ls $UCE_PATH); do
+    ls $UCE_PATH/$i/uce-* |
+        xargs -n1 basename >> _ucefilenames.txt
+done
+
+UNIQUE_UCES=$(sort _ucefilenames.txt | uniq)
+rm _ucefilenames.txt
 
 for i in ${UNIQUE_UCES[@]}; do
     FASTA_PATHS=($(ls $UCE_PATH/*/$i))
@@ -90,7 +97,12 @@ done
 
 # if remove files, do it, else just leave them marked
 if test $REMOVE_FILES -eq 1; then
-    rm $OUTPUT_PATH/*.REMOVE
+    # but attempt remove only if threshold is > 0, otherwise there should not be any
+    # file marked for remotion
+    ZERO_THRESHOLD=$(awk -v THRESHOLD=$THRESHOLD 'BEGIN { print (THRESHOLD > 0.0)?0:1 }')
+    if test $ZERO_THRESHOLD -eq 0; then
+	rm $OUTPUT_PATH/*.REMOVE
+    fi
 fi
 
 # then iterate over all files and remove the uce-N tags so that sequence names are as in the original samples
