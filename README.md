@@ -83,7 +83,7 @@ yafastac multiple_runs final_uces 0.80 0 0
 If this is useful please cite it as resource online:
 
 ```
-Ballen, G.A. 2025. YAFASTAC: Yet Another FASTA Concatenator. Version 0.3. Url: https://github.com/gaballench/yafastac. DOI https://doi.org/10.5281/zenodo.15731413.
+Ballen, G.A. 2025. YAFASTAC: Yet Another FASTA Concatenator. Version 0.3.1. Url: https://github.com/gaballench/yafastac. DOI https://doi.org/10.5281/zenodo.15047345.
 ```
 
 # License
